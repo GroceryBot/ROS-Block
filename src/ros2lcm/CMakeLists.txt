@@ -11,13 +11,10 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
 )
-find_package(GLib2)
-find_package(lcm REQUIRED)
+#find_package(GLib2)
+# find_package(lcm REQUIRED)
 
-if (LCM_FOUND)
-    include_directories(${LCM_INCLUDE_DIRS})
-    # add_subdirectory(src)
-endif (LCM_FOUND)
+include_directories(/usr/local/include)
 
 #generate_messages(DEPENDENCIES
 #  sensor_msgs
@@ -53,10 +50,9 @@ include_directories(${LCM_INCLUDE_DIRS})
 
 
 ## Declare a C++ library
- add_library(${PROJECT_NAME}
+# add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/ros2lcm_main.cpp
-    lcm
-)
+#)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -66,7 +62,8 @@ include_directories(${LCM_INCLUDE_DIRS})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(${PROJECT_NAME}_node src/ros2lcm_main.cpp)
+add_executable(${PROJECT_NAME}_node src/ros2lcm_main.cpp
+ src/Ros2lcm.cpp)
 
 
 ## Rename C++ executable without prefix
@@ -79,11 +76,12 @@ add_executable(${PROJECT_NAME}_node src/ros2lcm_main.cpp)
 ## same as for the library above
 add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
+message( ${catkin_LIBRARIES})
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_node
    ${catkin_LIBRARIES}
+   /usr/local/lib/liblcm.so
 )
-target_link_libraries(${LCM_NAMESPACE}lcm)
 
 #############
 ## Install ##

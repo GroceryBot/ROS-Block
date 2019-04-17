@@ -43,14 +43,20 @@
 //     float   intensities[num_ranges];    // no units
 // }
 
-Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance){
+Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance, ros::NodeHandle * nodeInstance){
     lcmInstance_ = lcmInstance;
+    nodeInstance_ = nodeInstance;
     currentTime_ = 0;
 }
 
 void Ros2lcm::handle_timesync(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const timestamp_t* ts){
       currentTime_ = ts->utime;
 }
+
+void Ros2lcm::handle_odometry(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const odometry_t* odom){
+    //nodeInstance->publish
+}
+
 
 void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
