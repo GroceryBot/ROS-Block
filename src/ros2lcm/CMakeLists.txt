@@ -11,14 +11,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
 )
-#find_package(GLib2)
-# find_package(lcm REQUIRED)
 
 include_directories(/usr/local/include)
-
-#generate_messages(DEPENDENCIES
-#  sensor_msgs
-#)
 
 ###################################
 ## catkin specific configuration ##
@@ -46,13 +40,8 @@ include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
 )
-include_directories(${LCM_INCLUDE_DIRS})
+#include_directories(${LCM_INCLUDE_DIRS})
 
-
-## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/ros2lcm_main.cpp
-#)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries

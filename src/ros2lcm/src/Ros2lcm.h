@@ -1,4 +1,5 @@
 #include "ros/ros.h"
+#include "mbot_channels.h"
 #include "sensor_msgs/LaserScan.h"
 #include "lcmtypes/lidar_t.hpp"
 #include <lcm/lcm-cpp.hpp>
@@ -19,5 +20,5 @@ private:
     lcm::LCM * lcmInstance_;
     ros::NodeHandle * nodeInstance_;
     uint32_t currentTime_;
-
+    uint32_t counter_;
 };
