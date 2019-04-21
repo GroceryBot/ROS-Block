@@ -19,6 +19,5 @@ private:
 
     lcm::LCM * lcmInstance_;
     ros::NodeHandle * nodeInstance_;
-    uint32_t currentTime_;
-    uint32_t counter_;
+    int64_t currentTime_;
 };

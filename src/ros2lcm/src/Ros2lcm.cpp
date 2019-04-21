@@ -1,6 +1,7 @@
 #include "Ros2lcm.h"
 #include "mbot_channels.h"
 #include <lcm/lcm-cpp.hpp>
+#include <iostream>
 
 //ROS MSG
 
@@ -47,49 +48,65 @@ Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance, ros::NodeHandle * nodeInstance){
     lcmInstance_ = lcmInstance;
     nodeInstance_ = nodeInstance;
     currentTime_ = 0;
-    counter_ = 0;
 }
 
 void Ros2lcm::handle_timesync(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const timestamp_t* ts){
-      currentTime_ = ts->utime;
+    //   currentTime_ = ts->utime;
       // ROS_INFO("Timesync info found");
 
 }
 
 void Ros2lcm::handle_odometry(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const odometry_t* odom){
+    currentTime_ = odom->utime;
+
     //nodeInstance->publish
 }
 
 
 void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 {
-    // if(counter_ <= 1){
-    //     counter_++;
-    //     return;
-    // }
     // ROS_INFO("I heard: [%s]", msg->data.c_str());
     //Subscribe to timesync
-    // ROS_INFO("STARTED SCAN CALL BACK");
-
+    ROS_INFO("STARTED SCAN CALL BACK");
 
     // ROS_INFO("Timesynce data found");
+        ROS_INFO("%f",msg->angle_increment);
+        ROS_INFO("%f",msg->angle_max);
+        ROS_INFO("%f",msg->angle_min);
 
     lidar_t ls;
     ls.utime = currentTime_;
-    ls.num_ranges = (msg->angle_max - msg->angle_min)/msg->angle_increment;
-    // ROS_INFO("%d",ls.num_ranges);
+    // ROS_INFO("%ld", currentTime_);
+    int sparser = 4;
+    ls.num_ranges = (msg->angle_max - msg->angle_min)/msg->angle_increment;// + (-1*msg->angle_min)/msg->angle_increment/sparser;
+    ROS_INFO("%d",ls.num_ranges);
     ls.ranges.resize(ls.num_ranges);
     ls.intensities.resize(ls.num_ranges);
     ls.thetas.resize(ls.num_ranges);
     ls.times.resize(ls.num_ranges);
+    //   ROS_INFO("%d",ls.num_ranges);
 
-    for(uint32_t i = 0; i < ls.num_ranges; ++i){
-      ls.ranges[i] = msg->ranges[i];
-      // ls.intensities[i] = msg->intensities[i];
-      ls.thetas[i] = msg->angle_min + i*msg->angle_increment;
-      // //Do I need to add utime here
-      ls.times[i] =  i*msg->time_increment;
+    for(uint32_t i = 0; i < ls.num_ranges; i+=sparser){
+            ROS_INFO("%d",i);
+    if(isnan((float)msg->ranges[i])){
+        ls.ranges[i/sparser] = 8.0;
     }
-    counter_ = 0;
+    else{
+        ls.ranges[i/sparser] = std::min(msg->ranges[i],(float)8.0);
+    }
+        // ROS_INFO("%f",msg->ranges[i]);
+      // ls.intensities[i] = msg->intensities[i];
+    if(i*msg->angle_increment < msg->angle_max)
+        ls.thetas[i/sparser] = msg->angle_max - i*msg->angle_increment;
+    else
+        ls.thetas[i/sparser] = -1 * (i*msg->angle_increment - msg->angle_max);
+
+    // if(i == 0){
+        ROS_INFO("%f",ls.thetas[i/sparser]);
+                
+    // }
+    // //Do I need to add utime here
+    ls.times[i/sparser] =  currentTime_ ;
+    }
     lcmInstance_->publish(LIDAR_CHANNEL, &ls);
 }
