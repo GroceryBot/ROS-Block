@@ -20,7 +20,7 @@ int main(int argc, char **argv)
   while(true){
     // lcmInstance.handle();
     ros::spinOnce();
-    lcmInstance.handleTimeout(50);
+    lcmInstance.handleTimeout(1000);
 
   }
 

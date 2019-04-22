@@ -68,6 +68,9 @@ void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     // ROS_INFO("I heard: [%s]", msg->data.c_str());
     //Subscribe to timesync
     ROS_INFO("STARTED SCAN CALL BACK");
+    if(currentTime_ == 0){
+        return;
+    }
 
     // ROS_INFO("Timesynce data found");
         ROS_INFO("%f",msg->angle_increment);
@@ -77,7 +80,7 @@ void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     lidar_t ls;
     ls.utime = currentTime_;
     // ROS_INFO("%ld", currentTime_);
-    int sparser = 4;
+    int sparser = 7;
     ls.num_ranges = (msg->angle_max - msg->angle_min)/msg->angle_increment;// + (-1*msg->angle_min)/msg->angle_increment/sparser;
     ROS_INFO("%d",ls.num_ranges);
     ls.ranges.resize(ls.num_ranges);
@@ -89,10 +92,10 @@ void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
     for(uint32_t i = 0; i < ls.num_ranges; i+=sparser){
             ROS_INFO("%d",i);
     if(isnan((float)msg->ranges[i])){
-        ls.ranges[i/sparser] = 8.0;
+        ls.ranges[i/sparser] = 5.0;
     }
     else{
-        ls.ranges[i/sparser] = std::min(msg->ranges[i],(float)8.0);
+        ls.ranges[i/sparser] = std::min(msg->ranges[i],(float)5.0);
     }
         // ROS_INFO("%f",msg->ranges[i]);
       // ls.intensities[i] = msg->intensities[i];
