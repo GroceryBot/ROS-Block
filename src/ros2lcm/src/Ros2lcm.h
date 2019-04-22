@@ -1,6 +1,7 @@
 #include "ros/ros.h"
 #include "mbot_channels.h"
 #include "sensor_msgs/LaserScan.h"
+#include "nav_msgs/Odometry.h"
 #include "lcmtypes/lidar_t.hpp"
 #include <lcm/lcm-cpp.hpp>
 #include "lcmtypes/timestamp_t.hpp"
@@ -19,5 +20,6 @@ private:
 
     lcm::LCM * lcmInstance_;
     ros::NodeHandle * nodeInstance_;
+    tf::TransformBroadcaster odom_broadcaster_;
     int64_t currentTime_;
 };

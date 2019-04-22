@@ -43,11 +43,44 @@
 //     int64_t times[num_ranges];          // [usec]
 //     float   intensities[num_ranges];    // no units
 // }
+/////////////////////////////////////////////////////////////////////
+// struct _odometry_t
+// {
+//     int64_t    utime;
+//     float      x;
+//     float      y;
+//     float      theta;
+//     float      fwd_velocity;
+//     float      ang_velocity;
+//     float      left_velocity;
+//     float      right_velocity;
+// };
+////////////////////////////////////////////////////////////////////////////
+//Odometry
+//string child_frame_id
+// geometry_msgs/PoseWithCovariance pose
+    // geometry_msgs/Pose pose
+    //     geometry_msgs/Point position
+    //     geometry_msgs/Quaternion orientation
+    // float64[36] covariance
+// geometry_msgs/TwistWithCovariance twist
+    // geometry_msgs/Twist twist
+    //     geometry_msgs/Vector3 linear
+    //         float64 x
+    //         float64 y
+    //         float64 z
+    //     geometry_msgs/Vector3 angular
+    //         float64 x
+    //         float64 y
+    //         float64 z
+    // float64[36] covariance
 
+//http://wiki.ros.org/navigation/Tutorials/RobotSetup/Odom
 Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance, ros::NodeHandle * nodeInstance){
     lcmInstance_ = lcmInstance;
     nodeInstance_ = nodeInstance;
     currentTime_ = 0;
+
 }
 
 void Ros2lcm::handle_timesync(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const timestamp_t* ts){

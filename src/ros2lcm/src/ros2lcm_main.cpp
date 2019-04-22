@@ -9,7 +9,7 @@ int main(int argc, char **argv)
   //MULTICAST_URL
   lcm::LCM lcmInstance("udpm://239.255.76.67:7667?ttl=2");
   Ros2lcm r2lInstance(&lcmInstance, &n);
-  lcmInstance.subscribe(MBOT_TIMESYNC_CHANNEL, &Ros2lcm::handle_timesync, &r2lInstance);
+  // lcmInstance.subscribe(MBOT_TIMESYNC_CHANNEL, &Ros2lcm::handle_timesync, &r2lInstance);
   lcmInstance.subscribe(ODOMETRY_CHANNEL, &Ros2lcm::handle_odometry, &r2lInstance);
 
   ros::Subscriber sub = n.subscribe("scan", 1000, &Ros2lcm::scanCallback, &r2lInstance);
