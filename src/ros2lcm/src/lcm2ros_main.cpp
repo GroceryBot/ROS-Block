@@ -8,21 +8,25 @@ int main(int argc, char **argv)
     ros::NodeHandle n;
     //MULTICAST_URL
     lcm::LCM lcmInstance("udpm://239.255.76.67:7667?ttl=2");
-    Ros2lcm r2lInstance(&lcmInstance, &n);
+    tf::TransformBroadcaster bt;
+    Ros2lcm r2lInstance(&lcmInstance, &n, &bt);
     lcmInstance.subscribe(SLAM_POSE_CHANNEL, &Ros2lcm::handle_slam_pose, &r2lInstance);
+    // lcmInstance.subscribe(ODOMETRY_CHANNEL, &Ros2lcm::handle_odometry, &r2lInstance);
 
-    ros::Publisher odom_pub = n.advertise<"nav_msgs::Odometry">("odom", 1000);
-    // ROS_INFO("Pre spin");
-    ros::Rate loop_rate(10);
+    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 1000);
+    ROS_INFO("Pre spin");
     while (ros::ok())
-    {   
-        if(new_odom){
+    {
+        ROS_INFO("check");
+
+        if(r2lInstance.odom_status()){
+            ROS_INFO("odom");
+
             odom_pub.publish(r2lInstance.get_odom());
-            new_odom = false;
+            r2lInstance.odom_written();
         }
         ros::spinOnce();
         lcmInstance.handleTimeout(1000);
-        loop_rate.sleep();
     }
 
     return 0;

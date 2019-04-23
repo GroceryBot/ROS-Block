@@ -8,7 +8,8 @@ int main(int argc, char **argv)
   ros::NodeHandle n;
   //MULTICAST_URL
   lcm::LCM lcmInstance("udpm://239.255.76.67:7667?ttl=2");
-  Ros2lcm r2lInstance(&lcmInstance, &n);
+  tf::TransformBroadcaster tb;
+  Ros2lcm r2lInstance(&lcmInstance, &n, &tb);
   // lcmInstance.subscribe(MBOT_TIMESYNC_CHANNEL, &Ros2lcm::handle_timesync, &r2lInstance);
   lcmInstance.subscribe(ODOMETRY_CHANNEL, &Ros2lcm::handle_odometry, &r2lInstance);
 
