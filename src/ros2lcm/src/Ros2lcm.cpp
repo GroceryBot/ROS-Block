@@ -81,7 +81,8 @@ Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance, ros::NodeHandle * nodeInstance){
     nodeInstance_ = nodeInstance;
     odom_broadcaster_ = nullptr;
     currentTime_ = 0;
-    lastTime_ = 0;
+    ros_currentTime_ = ros::Time::now();
+    lastTime_ = ros::Time::now();
     x_ = 0;
     y_ = 0;
     th_ = 0;
@@ -93,7 +94,8 @@ Ros2lcm::Ros2lcm(lcm::LCM * lcmInstance, ros::NodeHandle * nodeInstance, tf::Tra
     nodeInstance_ = nodeInstance;
     odom_broadcaster_ = odom_broadcaster;
     currentTime_ = 0;
-    lastTime_ = 0;
+    ros_currentTime_ = ros::Time::now();
+    lastTime_ = ros::Time::now();
     x_ = 0;
     y_ = 0;
     th_ = 0;
@@ -123,14 +125,65 @@ void Ros2lcm::handle_timesync(const lcm::ReceiveBuffer* rbuf, const std::string&
 void Ros2lcm::handle_odometry(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const odometry_t* odom){
     currentTime_ = odom->utime;
 
-    //nodeInstance->publish
+    // ros_currentTime_ = ros::Time::now();
+    // // if(ros_currentTime_ == lastTime_) return;
+    // //microsecond to seconds
+    // double dt = (ros_currentTime_ - lastTime_).toSec();
+    // double dx = odom->x - x_;
+    // double dy = odom->y - y_;
+    // ROS_INFO("dt %f, dx %f, dy %f", dt,dx,dy);
+    // //DO I NEED TO WRAP?
+    // double dtheta = odom->theta - th_;
+
+    // x_ = odom->x;
+    // y_ = odom->y;
+    // th_ = odom->theta;
+    // ROS_INFO("x %f, y %f, theta %f", x_,y_,th_);
+
+    // //since all odometry is 6DOF we'll need a quaternion created from yaw
+    // geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th_);
+
+    // geometry_msgs::TransformStamped odom_trans;
+    // odom_trans.header.stamp = ros_currentTime_;
+    // odom_trans.header.frame_id = "odom";
+    // odom_trans.child_frame_id = "base_link";
+
+    // odom_trans.transform.translation.x = x_;
+    // odom_trans.transform.translation.y = y_;
+    // odom_trans.transform.translation.z = 0.0;
+    // odom_trans.transform.rotation = odom_quat;
+
+    // //send the transform
+    // odom_broadcaster_->sendTransform(odom_trans);
+
+    // //next, we'll publish the odometry message over ROS
+    // odom_.header.stamp = ros_currentTime_;
+    // odom_.header.frame_id = "odom";
+
+    // //set the position
+    // odom_.pose.pose.position.x = x_;
+    // odom_.pose.pose.position.y = y_;
+    // odom_.pose.pose.position.z = 0.0;
+    // odom_.pose.pose.orientation = odom_quat;
+
+    // //set the velocity
+    // odom_.child_frame_id = "base_link";
+    // odom_.twist.twist.linear.x = dx/dt ;
+    // odom_.twist.twist.linear.y = dy/dt;
+    // odom_.twist.twist.angular.z = dtheta/dt;
+
+    // // //publish the message
+    // // odom_pub.publish(odom);
+    // new_odom_ = true;
+    // lastTime_ = ros_currentTime_;
+    // //nodeInstance->publish
 }
 void Ros2lcm::handle_slam_pose(const lcm::ReceiveBuffer* rbuf, const std::string& channel, const pose_xyt_t* slam_pose){
 
-    currentTime_ = slam_pose->utime;
-    if(currentTime_ == lastTime_) return;
+    ros_currentTime_ = ros::Time::now();
+    // if(ros_currentTime_ == lastTime_) return;
     //microsecond to seconds
-    double dt = (currentTime_ - lastTime_);// / 100000;
+    double dt = (ros_currentTime_ - lastTime_).toSec();
     double dx = slam_pose->x - x_;
     double dy = slam_pose->y - y_;
     ROS_INFO("dt %f, dx %f, dy %f", dt,dx,dy);
@@ -146,7 +199,8 @@ void Ros2lcm::handle_slam_pose(const lcm::ReceiveBuffer* rbuf, const std::string
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th_);
 
     geometry_msgs::TransformStamped odom_trans;
-    odom_trans.header.stamp.nsec = currentTime_;
+    odom_trans.header.stamp = ros_currentTime_;
+
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_link";
 
@@ -159,7 +213,7 @@ void Ros2lcm::handle_slam_pose(const lcm::ReceiveBuffer* rbuf, const std::string
     odom_broadcaster_->sendTransform(odom_trans);
 
     //next, we'll publish the odometry message over ROS
-    odom_.header.stamp.nsec = currentTime_;
+    odom_.header.stamp = ros_currentTime_;;
     odom_.header.frame_id = "odom";
 
     //set the position
@@ -177,7 +231,7 @@ void Ros2lcm::handle_slam_pose(const lcm::ReceiveBuffer* rbuf, const std::string
     // //publish the message
     // odom_pub.publish(odom);
     new_odom_ = true;
-    lastTime_ = currentTime_;
+    lastTime_ = ros_currentTime_;
     //nodeInstance->publish
 }
 
@@ -210,7 +264,7 @@ void Ros2lcm::scanCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
 
     for(uint32_t i = 0; i < ls.num_ranges; i+=sparser){
             ROS_INFO("%d",i);
-    if(isnan((float)msg->ranges[i])){
+    if(std::isnan((float)msg->ranges[i])){
         ls.ranges[i/sparser] = 5.0;
     }
     else{

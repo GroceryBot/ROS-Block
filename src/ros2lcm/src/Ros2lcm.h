@@ -30,7 +30,8 @@ private:
     tf::TransformBroadcaster * odom_broadcaster_;
     nav_msgs::Odometry odom_;
     int64_t currentTime_;
-    int64_t lastTime_;
+    ros::Time ros_currentTime_;
+    ros::Time lastTime_;
     double x_;
     double y_;
     double th_;
